@@ -8,13 +8,7 @@ export type VSCodeLinksConfig = {
   links: Array<{
     include: string | Array<string>;
     exclude?: string | Array<string>;
-    handle: (options: {
-      linkText: string;
-      filePath: string;
-      file: (path: string) => string;
-      workspacePath: string;
-      workspaceFile: (path: string) => string;
-    }) => {
+    handle: (options: { linkText: string; workspacePath: string }) => {
       target: string;
       tooltip?: string;
     };
@@ -119,7 +113,4 @@ export function help() {
   console.error("Actions:");
   console.error("  run: Extract links from a file based on the given configuration and file.");
   console.error("       Example: vscode-links-cli run -c ./config.json -f ./test.md");
-  console.error("");
-  console.error("  config: Create a new configuration file.");
-  console.error("       Example: vscode-links-cli config -f ./config.json");
 }

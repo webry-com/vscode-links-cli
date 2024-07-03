@@ -5,71 +5,70 @@ import fs from "fs";
 import { helpAndExit, ParsedVSCodeLinksConfig, validateConfig, VSCodeDocumentLink } from "./utils/utils.js";
 import { minimatch } from "minimatch";
 
+const workspaceFolder = process.cwd();
 if (process.argv.length <= 2) {
   helpAndExit();
 }
 
-const workspaceFolder = process.cwd();
-const [cliNode, cliPath, ...cliArgs] = process.argv;
-const action = cliArgs[0];
+let fileContents = "";
+process.stdin.setEncoding("utf8");
+process.stdin.on("data", (chunk) => {
+  fileContents += chunk.toString("utf8");
+});
+process.stdin.on("end", () => {
+  const [cliNode, cliPath, ...cliArgs] = process.argv;
+  const action = cliArgs[0];
 
-// cli run -c config.js -f file.js
-if (action === "run") {
-  const indexOfConfig = cliArgs.indexOf("-c");
-  const indexOfFile = cliArgs.indexOf("-f");
-  const configPath = indexOfConfig > -1 ? cliArgs[indexOfConfig + 1] : undefined;
-  const filePath = indexOfFile > -1 ? cliArgs[indexOfFile + 1] : undefined;
-  if (configPath == null || filePath == null) {
-    console.log("1");
-    helpAndExit();
-  }
+  // cli run -c config.js -f file.js
+  if (action === "run") {
+    const indexOfConfig = cliArgs.indexOf("-c");
+    const indexOfFile = cliArgs.indexOf("-f");
+    const configPath = indexOfConfig > -1 ? cliArgs[indexOfConfig + 1] : undefined;
+    const filePath = indexOfFile > -1 ? cliArgs[indexOfFile + 1] : undefined;
+    if (configPath == null || filePath == null) {
+      helpAndExit();
+    }
 
-  const fileExists = fs.existsSync(path.join(workspaceFolder, filePath));
-  if (!fileExists) {
-    console.error(`File ${filePath} does not exist`);
-    process.exit(1);
-  }
-
-  const absoluteConfigPath = path.resolve(workspaceFolder, configPath);
-  if (!fs.existsSync(absoluteConfigPath)) {
-    console.error(`Config file ${configPath} does not exist`);
-    process.exit(1);
-  }
-
-  const configUrl = new URL(`file://${absoluteConfigPath}`);
-  configUrl.searchParams.append("t", Date.now().toString());
-
-  import(configUrl.href).then((configModule) => {
-    if (!configModule.default) {
-      console.error(`Config file ${configPath} does not export a default object`);
+    const absoluteConfigPath = path.resolve(workspaceFolder, configPath);
+    if (!fs.existsSync(absoluteConfigPath)) {
+      console.error(`Config file ${configPath} does not exist`);
       process.exit(1);
     }
 
-    const config = configModule.default;
-    if (!validateConfig(config)) {
-      process.exit(1);
-    }
+    const configUrl = new URL(`file://${absoluteConfigPath}`);
+    configUrl.searchParams.append("t", Date.now().toString());
 
-    config.links = config.links.filter((link) => {
-      const relativePath = path.relative(workspaceFolder, filePath).replace(/\\/g, "/");
-      const isIncluded = link.include.length && link.include.some((pattern) => minimatch(relativePath, pattern));
-      const isExcluded =
-        link.exclude && link.exclude.length && link.exclude.some((pattern) => minimatch(relativePath, pattern));
-      if (!isIncluded || isExcluded) {
-        return false;
+    import(configUrl.href).then((configModule) => {
+      if (!configModule.default) {
+        console.error(`Config file ${configPath} does not export a default object`);
+        process.exit(1);
       }
 
-      return true;
-    });
+      const config = configModule.default;
+      if (!validateConfig(config)) {
+        process.exit(1);
+      }
 
-    const fileContents = fs.readFileSync(path.join(workspaceFolder, filePath), "utf-8");
-    const links = runOnFile(config, fileContents);
-    console.log(JSON.stringify(links, null, 2));
-    process.exit(0);
-  });
-} else {
-  helpAndExit();
-}
+      config.links = config.links.filter((link) => {
+        const relativePath = path.relative(workspaceFolder, filePath).replace(/\\/g, "/");
+        const isIncluded = link.include.length && link.include.some((pattern) => minimatch(relativePath, pattern));
+        const isExcluded =
+          link.exclude && link.exclude.length && link.exclude.some((pattern) => minimatch(relativePath, pattern));
+        if (!isIncluded || isExcluded) {
+          return false;
+        }
+
+        return true;
+      });
+
+      const links = runOnFile(config, fileContents);
+      console.log(JSON.stringify(links, null, 2));
+      process.exit(0);
+    });
+  } else {
+    helpAndExit();
+  }
+});
 
 function runOnFile(config: ParsedVSCodeLinksConfig, contents: string) {
   const links: VSCodeDocumentLink[] = [];
