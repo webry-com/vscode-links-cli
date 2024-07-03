@@ -5,27 +5,21 @@ export type VSCodeDocumentLink = {
 };
 
 export type VSCodeLinksConfig = {
-  links: Array<
-    {
-      include: string | Array<string>;
-      exclude?: string | Array<string>;
-      handle: (options: {
-        linkText: string;
-        filePath: string;
-        file: (path: string) => string;
-        workspacePath: string;
-        workspaceFile: (path: string) => string;
-      }) => {
-        target: string;
-        tooltip?: string;
-      };
-    } & (
-      | { pattern: string | RegExp | RegExp[] }
-      | {
-          customPattern: ({ documentText }: { documentText: string }) => undefined | null | [number, number];
-        }
-    )
-  >;
+  links: Array<{
+    include: string | Array<string>;
+    exclude?: string | Array<string>;
+    handle: (options: {
+      linkText: string;
+      filePath: string;
+      file: (path: string) => string;
+      workspacePath: string;
+      workspaceFile: (path: string) => string;
+    }) => {
+      target: string;
+      tooltip?: string;
+    };
+    pattern: string | RegExp | RegExp[];
+  }>;
 };
 
 export type ParsedVSCodeLinksConfig = {
