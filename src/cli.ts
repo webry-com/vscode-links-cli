@@ -2,13 +2,7 @@
 
 import path from "path";
 import fs from "fs";
-import {
-  helpAndExit,
-  ParsedVSCodeLinksConfig,
-  validateConfig,
-  VSCodeDocumentLink,
-  VSCodeLinksConfig,
-} from "./utils/utils.js";
+import { helpAndExit, ParsedVSCodeLinksConfig, validateConfig, VSCodeDocumentLink } from "./utils/utils.js";
 import { minimatch } from "minimatch";
 
 if (process.argv.length <= 2) {
