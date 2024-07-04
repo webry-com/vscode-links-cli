@@ -91,7 +91,7 @@ function runOnFile(config: ParsedVSCodeLinksConfig, contents: string) {
           const linkText = contents.substring(range.start, range.end);
           const result = link.handle({
             linkText,
-            workspacePath: workspaceFolder,
+            workspacePath: workspaceFolder.replace(/\\/g, "/"),
           });
           const validHandlerRespose =
             result && typeof result === "object" && "target" in result && typeof result.target === "string";
