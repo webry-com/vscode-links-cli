@@ -4,7 +4,8 @@ export type VSCodeDocumentLink = {
   tooltip?: string;
 };
 
-export type VSCodeLinksConfig = {
+export type Config = {
+  version?: "1";
   links: Array<{
     include: string | Array<string>;
     exclude?: string | Array<string>;

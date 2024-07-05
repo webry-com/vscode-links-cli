@@ -62,7 +62,16 @@ process.stdin.on("end", () => {
       });
 
       const links = runOnFile(config, fileContents);
-      console.log(JSON.stringify(links, null, 2));
+      console.log(
+        JSON.stringify(
+          {
+            links,
+            version: "1",
+          },
+          null,
+          2,
+        ),
+      );
       process.exit(0);
     });
   } else {
