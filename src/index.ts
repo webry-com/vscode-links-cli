@@ -32,3 +32,5 @@ export function file(strings: string[], ...values: string[]): string {
   const filePath = builtString.replace(/[\\\/]+/g, "/");
   return `${filePrefix}${filePath}`;
 }
+
+export const workspacePath = process.cwd().replace(/\\/g, "/");

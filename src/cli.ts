@@ -2,7 +2,7 @@
 
 import path from "path";
 import fs from "fs";
-import { helpAndExit, ParsedVSCodeLinksConfig, validateConfig, VSCodeDocumentLink } from "./utils/utils.js";
+import { helpAndExit, ParsedVSCodeLinksConfig, validateConfig, CLIDocumentLink } from "./utils/utils.js";
 import { minimatch } from "minimatch";
 
 const workspaceFolder = process.cwd();
@@ -80,7 +80,7 @@ process.stdin.on("end", () => {
 });
 
 function runOnFile(config: ParsedVSCodeLinksConfig, contents: string) {
-  const links: VSCodeDocumentLink[] = [];
+  const links: CLIDocumentLink[] = [];
   for (const link of config.links) {
     if ("pattern" in link) {
       for (const regEx of link.pattern) {
@@ -100,17 +100,28 @@ function runOnFile(config: ParsedVSCodeLinksConfig, contents: string) {
           const linkText = contents.substring(range.start, range.end);
           const result = link.handle({
             linkText,
-            workspacePath: workspaceFolder.replace(/\\/g, "/"),
           });
-          const validHandlerRespose =
+          const validHandlerResponse =
             result && typeof result === "object" && "target" in result && typeof result.target === "string";
-          if (!validHandlerRespose) {
+          if (!validHandlerResponse) {
             continue;
           }
 
           links.push({
-            ...result,
+            target: result.target,
+            tooltip: result.tooltip || "",
             range: [range.start, range.end],
+            jumpPattern:
+              result.jumpPattern instanceof RegExp
+                ? {
+                    pattern: result.jumpPattern.source,
+                    flags: result.jumpPattern.flags,
+                  }
+                : typeof result.jumpPattern === "string"
+                ? {
+                    literal: result.jumpPattern,
+                  }
+                : undefined,
           });
         }
       }
