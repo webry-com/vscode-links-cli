@@ -1,6 +1,6 @@
 export { Config } from "./utils/utils";
 
-export function workspace(strings: string[], ...values: string[]): string {
+export function workspace(strings: TemplateStringsArray, ...values: string[]): string {
   const filePrefix =
     (
       {
@@ -17,7 +17,7 @@ export function workspace(strings: string[], ...values: string[]): string {
   return `${filePrefix}${filePath}`;
 }
 
-export function file(strings: string[], ...values: string[]): string {
+export function file(strings: TemplateStringsArray, ...values: string[]): string {
   const filePrefix =
     (
       {

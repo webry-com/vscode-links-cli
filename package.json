@@ -1,6 +1,6 @@
 {
   "name": "vscode-links-cli",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "The cli powering the vscode-links extension.",
   "type": "module",
   "main": "build/main/index.js",
@@ -40,7 +40,8 @@
     "standard-version": "^9.0.0",
     "ts-node": "^9.0.0",
     "typedoc": "^0.26.3",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vscode-links-cli": "^1.1.1"
   },
   "files": [
     "build/main",
